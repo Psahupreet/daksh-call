@@ -118,15 +118,15 @@ export default function PartnerRegister() {
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Service Category</label>
                 <select id="category" required className="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                   <option value="">Select a category</option>
-                  <option value="plumbing">plumbing</option>
+                  <option value="Plumbing">Plumbing</option>
                   <option value="Electrician">Electrician</option>
                   <option value="Carpenter">Carpenter</option>
                   <option value="Driver">Driver</option>
-                  <option value="beauty & wellness">beauty & wellness</option>
-                  <option value="Appliance repair">Appliance repair</option>
+                  <option value="Beauty & Wellness">Beauty & Wellness</option>
+                  <option value="Appliance Repair">Appliance Repair</option>
                   <option value="Paramedics">Paramedics</option>
                   <option value="Physiotherapists">Physiotherapists</option>
-                  <option value="housekeeping">housekeeping</option>
+                  <option value="Housekeeping">Housekeeping</option>
                   <option value="Painter">Painter</option>
                   <option value="Other">Other</option>
                 </select>
