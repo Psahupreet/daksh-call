@@ -6,7 +6,7 @@ import {
   loginPartner,
   getAllPartners,
   deletePartner,
-  getPartnerDashboardStats,forgotPassword, resetPassword
+  getPartnerDashboardStats,forgotPassword, resetPassword,getMe
   // uploadDocuments, // ✅ NEW controller
 } from "../controllers/partnerController.js";
 import  {uploadPartnerDocuments,updateDocumentStatus}   from "../controllers/partnerDocs.js";
@@ -27,7 +27,8 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
+// Authenticated partner details
+router.get("/me", protectPartner, getMe);
 
 // ✅ Existing routes
 router.post("/register", registerPartner);

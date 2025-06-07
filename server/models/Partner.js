@@ -22,6 +22,7 @@ const partnerSchema = new mongoose.Schema({
     default: Date.now,
   },
   jobId: { type: String, unique: true },
+ services: [String]
   
 });
 

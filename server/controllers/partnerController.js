@@ -245,3 +245,33 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Error resetting password" });
   }
 };
+
+export const getMe = async (req, res) => {
+  try {
+    // Use req.partnerId set by protectPartner
+    if (!req.partnerId) {
+      return res.status(401).json({ message: "Not authorized" });
+    }
+
+    const partner = await Partner.findById(req.partnerId).populate("services");
+    if (!partner) {
+      return res.status(404).json({ message: "Partner not found" });
+    }
+
+    res.json({
+      name: partner.name,
+      jobId: partner._id,
+      isVerified: partner.isVerified,
+      services: Array.isArray(partner.services)
+        ? partner.services.map(service => ({
+            id: service._id || service.id,
+            name: service.name,
+          }))
+        : [],
+      email: partner.email,
+    });
+  } catch (err) {
+    console.error("Error in /api/partners/me:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
