@@ -5,6 +5,11 @@ import Partner from "../models/Partner.js";
 import { assignNextAvailablePartner } from "../utils/assignPartner.js";
 import { assignPartnerAutomatically } from "../controllers/partnerAssignmentController.js";
 
+
+// Utility: Generate a random 4-digit code
+function generate4DigitCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
 //create order
 export const createOrder = async (req, res) => {
   try {
@@ -24,7 +29,6 @@ export const createOrder = async (req, res) => {
     res.status(500).json({ message: "Failed to place order" });
   }
 };
-
 
 //get order
 export const getUserOrders = async (req, res) => {
@@ -61,6 +65,7 @@ export const cancelOrder = async (req, res) => {
 };
 
 //placed order
+// Place order (with codes)
 export const placeOrder = async (req, res) => {
   try {
     const { items, totalAmount, address } = req.body;
@@ -69,6 +74,11 @@ export const placeOrder = async (req, res) => {
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "No items to place order" });
     }
+
+    // Generate 2 different codes
+    let happyCode = generate4DigitCode();
+    let completeCode = generate4DigitCode();
+    while (happyCode === completeCode) completeCode = generate4DigitCode();
 
     const newOrder = new Order({
       user: userId,
@@ -84,15 +94,16 @@ export const placeOrder = async (req, res) => {
       },
       status: "Confirmed",
       createdAt: new Date(),
+      happyCode,
+      completeCode
     });
 
     const savedOrder = await newOrder.save();
-    // console.log("✅ Order placed with ID:", savedOrder._id);
 
     // Call assignment function manually
     req.params.orderId = savedOrder._id;
     await assignPartnerAutomatically(req, {
-      status: () => ({ json: () => {} }), // prevent double res.send
+      status: () => ({ json: () => {} }),
     });
 
     res.status(201).json({
@@ -107,6 +118,7 @@ export const placeOrder = async (req, res) => {
     });
   }
 };
+
 
 
 //getAllOrders admin 
@@ -126,7 +138,21 @@ export const getPartnerOrders = async (req, res) => {
 
     const orders = await Order.find({ assignedPartner: partnerId })
       .populate("user", "name email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Only include user email/name if requestStatus is Accepted or status is processing/Completed
+    orders.forEach(order => {
+      if (
+        order.requestStatus !== "Accepted" && 
+        order.status !== "processing" && 
+        order.status !== "Completed"
+      ) {
+        if (order.user) {
+          order.user = { name: "Hidden until accepted" };
+        }
+      }
+    });
 
     res.json(orders);
   } catch (err) {
@@ -164,5 +190,35 @@ export const changeOrderTimeSlot = async (req, res) => {
   } catch (err) {
     console.error("Error in changeOrderTimeSlot:", err);
     res.status(500).json({ message: "Failed to update time slot" });
+  }
+};
+
+
+export const submitPartnerFeedback = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { rating, review, by } = req.body;
+
+    // Only allow partner to submit feedback to partnerFeedback
+    if (by !== "partner") {
+      return res.status(400).json({ message: "Invalid feedback role" });
+    }
+
+    // Find the order and ensure partnerFeedback is not already given
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    if (order.partnerFeedback) {
+      return res.status(400).json({ message: "Feedback already submitted" });
+    }
+
+    // Save feedback
+    order.partnerFeedback = { rating, review };
+    await order.save();
+
+    res.json({ message: "Feedback submitted successfully", order });
+  } catch (err) {
+    console.error("Feedback error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };

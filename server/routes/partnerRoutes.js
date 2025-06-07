@@ -9,6 +9,7 @@ import {
   getPartnerDashboardStats,forgotPassword, resetPassword,getMe
   // uploadDocuments, // ✅ NEW controller
 } from "../controllers/partnerController.js";
+import { handlePartnerSupport } from "../controllers/partnerSupportController.js";
 import  {uploadPartnerDocuments,updateDocumentStatus}   from "../controllers/partnerDocs.js";
 import { checkDocumentsStatus } from "../controllers/partnerDocs.js";
 import { adminProtect } from "../middleware/adminAuthMiddleware.js";
@@ -61,5 +62,7 @@ router.get("/dashboard-stats",protectPartner , getPartnerDashboardStats);
 
 router.post('/forget-password-partner', forgotPassword);
 router.put('/reset-password-partner/:token', resetPassword);
+
+router.post("/support", protectPartner, handlePartnerSupport);
 
 export default router;

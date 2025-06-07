@@ -170,7 +170,7 @@ const PartnersHome = () => {
                 </button>
                 <button
                   className="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-indigo-300 hover:shadow-sm transition-all"
-                  onClick={() => navigate("/PartnerSupport-page")}
+                  onClick={() => navigate("/partner-Support")}
                 >
                   <h4 className="font-medium text-gray-800">Support</h4>
                   <p className="text-sm text-gray-500 mt-1">Get help from our team</p>

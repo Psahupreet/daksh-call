@@ -6,7 +6,8 @@ import {
   placeOrder,
   getAllOrders,
   cancelOrder,
- changeOrderTimeSlot
+ changeOrderTimeSlot,
+  submitPartnerFeedback
 } from "../controllers/orderController.js";
 
 import {
@@ -48,4 +49,5 @@ router.get("/partner-orders", protectPartner, getPartnerOrders);
 router.post("/start/:orderId", protectPartner, startOrder);
 router.post("/complete/:orderId", protectPartner, completeOrder);
 router.post("/feedback/:orderId", protectPartner, submitFeedback);
+router.post("/orders/feedback/:orderId", submitPartnerFeedback);
 export default router;

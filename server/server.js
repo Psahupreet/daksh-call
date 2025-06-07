@@ -19,7 +19,6 @@ import adminRoutes from "./routes/adminRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import helpRoutes from './routes/helpRoutes.js';
 
-
 import bodyParser from 'body-parser';
 // import paymentRoutes from './routes/paymentRoutes.js';
 
@@ -63,7 +62,7 @@ app.use('/api/partners', partnerRoutes);
 app.use('/api/contact', contactRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use('/api/help', helpRoutes);
-
+app.use("/api/partners", partnerRoutes);
 // app.use('/api/payment', paymentRoutes);
 
 app.get('/', (req, res) => {

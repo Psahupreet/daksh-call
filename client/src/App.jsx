@@ -74,7 +74,7 @@ export default function App() {
 
 
            <Route path="/partner-update-profile" element={<PartnerUpdateProfile />} />
-          <Route path="/PartnerSupport-page" element={<PartnerSupportPage />} />
+          <Route path="/partner-Support" element={<PartnerSupportPage />} />
         </Routes>
       </main>
       <Footer />

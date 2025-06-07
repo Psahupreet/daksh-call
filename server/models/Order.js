@@ -9,6 +9,15 @@ const subServiceSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Feedback schema for both customer and partner feedback
+const feedbackSchema = new mongoose.Schema(
+  {
+    rating: { type: Number, min: 1, max: 5 },
+    review: { type: String },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -24,7 +33,7 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         default: 1,
       },
-      subServices: [subServiceSchema], // <-- Step 1 added here!
+      subServices: [subServiceSchema],
     },
   ],
   totalAmount: {
@@ -41,7 +50,7 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["Confirmed", "Completed", "Cancelled", "Declined"],
+    enum: ["Pending", "Confirmed", "processing", "Completed", "Cancelled", "Declined"],
     default: "Pending",
   },
   assignedPartner: {
@@ -60,10 +69,15 @@ const orderSchema = new mongoose.Schema({
   },
   startedAt: { type: Date, default: null }, // when partner starts the job
   completedAt: { type: Date, default: null }, // when job is marked complete
-  feedback: {
-    rating: { type: Number, min: 1, max: 5 },
-    review: { type: String },
-  },
+
+  // Codes for workflow (new fields)
+  happyCode: { type: String },        // 4-digit code (shown to user, used by partner to start)
+  completeCode: { type: String },     // 4-digit code (shown to user, used by partner to complete)
+
+  // Feedback structure for both roles
+  partnerFeedback: feedbackSchema,
+  customerFeedback: feedbackSchema,
+
   createdAt: {
     type: Date,
     default: Date.now,

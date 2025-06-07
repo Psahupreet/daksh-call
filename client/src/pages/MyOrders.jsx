@@ -179,6 +179,18 @@ export default function MyOrders() {
                 </div>
               </div>
 
+              {/* Start/Complete Codes for the user */}
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                <div className="flex-1">
+                  <span className="block text-xs text-gray-500 mb-1">Happy Code (Share this code with the Partner to begin the work):</span>
+                  <span className="block font-mono font-bold text-lg text-green-700">{order.happyCode || "----"}</span>
+                </div>
+                <div className="flex-1">
+                  <span className="block text-xs text-gray-500 mb-1">Complete Code (Share this code with the Partner to mark the work as finished):</span>
+                  <span className="block font-mono font-bold text-lg text-blue-700">{order.completeCode || "----"}</span>
+                </div>
+              </div>
+
               {/* Order Details */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Address */}
@@ -228,7 +240,6 @@ export default function MyOrders() {
                     <div className="flex items-center">
                       <span className="w-28 text-sm text-gray-500">⏰ Time Slot:</span>
                       <span className="text-sm font-medium">
-                        {/* Time Slot Reschedule UI */}
                         {order.requestStatus === "NoPartner" ? (
                           editingOrderId === order._id ? (
                             <span className="flex items-center gap-2">
