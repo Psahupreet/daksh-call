@@ -71,6 +71,7 @@ const PartnerOrders = () => {
 
   return (
     <div className="p-4 space-y-4">
+      
       <h1 className="text-xl font-bold">Partner Orders</h1>
 
      <div className="flex gap-4 flex-wrap">

@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Partner from "../models/Partner.js";
 import PartnerDocuments from "../models/partnerDocument.js";
-
+import { sendMail } from "../utils/sendMail.js";
 //admin login
 export const adminLogin = async (req, res) => {
   try {
@@ -106,12 +106,12 @@ export const verifyPartnerst = async (req, res) => {
             <strong>Job ID:</strong> ${updatedPartner._id}
           </p>
           <p style="margin-top:24px;">We wish you a successful journey ahead!<br/>- Team Daksh</p>
-        `
+        `,
       });
       console.log("Verification email sent to partner:", updatedPartner.email);
     } catch (mailErr) {
       console.error("Failed to send verification email:", mailErr);
-      // You can choose to continue or return error; here we continue
+      // Continue, do not fail the request
     }
     // ======== EMAIL NOTIFICATION END ==========
 
@@ -121,7 +121,6 @@ export const verifyPartnerst = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 // Decline a partner docs
 export const declinePartnerst = async (req, res) => {
   try {

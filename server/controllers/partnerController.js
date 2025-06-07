@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 import Order from '../models/Order.js';
-
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 const sendEmail = async (email, otp) => {
@@ -248,12 +247,10 @@ export const resetPassword = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    // Use req.partnerId set by protectPartner
     if (!req.partnerId) {
       return res.status(401).json({ message: "Not authorized" });
     }
-
-    const partner = await Partner.findById(req.partnerId).populate("services");
+    const partner = await Partner.findById(req.partnerId);
     if (!partner) {
       return res.status(404).json({ message: "Partner not found" });
     }
@@ -262,12 +259,8 @@ export const getMe = async (req, res) => {
       name: partner.name,
       jobId: partner._id,
       isVerified: partner.isVerified,
-      services: Array.isArray(partner.services)
-        ? partner.services.map(service => ({
-            id: service._id || service.id,
-            name: service.name,
-          }))
-        : [],
+      category: partner.category,          // <-- Important: add this
+      services: partner.services || [],
       email: partner.email,
     });
   } catch (err) {

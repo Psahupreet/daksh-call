@@ -28,6 +28,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PartnerForgotPassword from './pages/PartnerForgotPassword';
 import PartnerResetPassword from './pages/PartnerResetPassword';
+import PartnerUpdateProfile from "./pages/PartnerUpdateProfile";
+import PartnerSupportPage from "./pages/PartnerSupportPage";
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
 export default function App() {
@@ -69,6 +71,10 @@ export default function App() {
           //for partners
           <Route path="/reset-password-partner/:token" element={<PartnerResetPassword />} />
           <Route path="/forget-password-partner" element={<PartnerForgotPassword />} />
+
+
+           <Route path="/partner-update-profile" element={<PartnerUpdateProfile />} />
+          <Route path="/PartnerSupport-page" element={<PartnerSupportPage />} />
         </Routes>
       </main>
       <Footer />
