@@ -7,3 +7,7 @@ const Pan = () => {
 }
 
 export default Pan
+
+
+
+

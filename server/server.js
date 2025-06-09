@@ -63,6 +63,7 @@ app.use('/api/contact', contactRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use('/api/help', helpRoutes);
 app.use("/api/partners", partnerRoutes);
+app.use("/api", partnerRoutes);
 // app.use('/api/payment', paymentRoutes);
 
 app.get('/', (req, res) => {

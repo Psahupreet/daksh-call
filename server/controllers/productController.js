@@ -1,5 +1,6 @@
 // File: server/controllers/productController.js
 import Product from "../models/Product.js";
+import Partner from "../models/Partner.js";
 
 // ✅ Create Product
 export const createProduct = async (req, res) => {
@@ -34,12 +35,27 @@ export const createProduct = async (req, res) => {
 export const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    res.status(200).json(products);
+
+    const productsWithAvailability = await Promise.all(
+      products.map(async (product) => {
+        // Matching by name (or add a product.category field if you prefer)
+        const hasPartner = await Partner.exists({
+          category: product.name,
+          isApproved: true,
+          isDeclined: false,
+        });
+        return {
+          ...product.toObject(),
+          partnerAvailable: !!hasPartner
+        };
+      })
+    );
+
+    res.status(200).json(productsWithAvailability);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch products" });
   }
 };
-
 // ✅ Get Product by ID
 export const getProductById = async (req, res) => {
   try {

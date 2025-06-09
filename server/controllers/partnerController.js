@@ -25,6 +25,12 @@ const sendEmail = async (email, otp) => {
 
 export const registerPartner = async (req, res) => {
   const { name, email, phone, password, category } = req.body;
+
+  // Defensive: check required fields
+  if (!name || !email || !phone || !password || !category) {
+    return res.status(400).json({ message: 'All fields are required (name, email, phone, password, category).' });
+  }
+
   try {
     const existingPartner = await Partner.findOne({ $or: [{ email }, { phone }] });
     if (existingPartner) return res.status(400).json({ message: 'Email or Phone already registered' });
@@ -35,13 +41,27 @@ export const registerPartner = async (req, res) => {
     const jobId = crypto.randomBytes(4).toString('hex');
 
     const partner = new Partner({
-      name, email, phone, password: hashedPassword, otp, otpExpires, jobId, category, isVerified: true,
+      name,
+      email,
+      phone,
+      password: hashedPassword,
+      otp,
+      otpExpires,
+      jobId,
+      category,
+      isVerified: false, // typically false until email/otp is verified
+      // personalDetails and documents will be added in later steps
     });
 
     await partner.save();
     await sendEmail(email, otp);
     res.status(201).json({ message: 'OTP sent to your email' });
   } catch (error) {
+    // Handle duplicate key error (E11000)
+    if (error.code === 11000) {
+      const dupField = Object.keys(error.keyValue)[0];
+      return res.status(400).json({ message: `Duplicate value for: ${dupField}` });
+    }
     res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
@@ -196,7 +216,7 @@ export const forgotPassword = async (req, res) => {
     partner.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await partner.save();
 
-    const resetUrl = `http://localhost:5173/reset-password-partner/${resetToken}`;
+    const resetUrl = `http://82.29.165.206:8080/reset-password-partner/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -266,5 +286,44 @@ export const getMe = async (req, res) => {
   } catch (err) {
     console.error("Error in /api/partners/me:", err);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// POST /api/partners/update-personal-details
+export const updatePersonalDetails = async (req, res) => {
+  try {
+    // DEBUG: Log incoming data
+    console.log("req.user:", req.user);
+    console.log("req.partner:", req.partner);
+    console.log("req.body:", req.body);
+
+    // Adjust based on your middleware
+    const partner = req.user || req.partner;
+    if (!partner) return res.status(401).json({ message: "Not authorized" });
+
+    // Validate required fields
+    const requiredFields = ["fullName", "dob", "gender", "address", "phone", "email"];
+    for (let key of requiredFields) {
+      if (!req.body[key]) {
+        return res.status(400).json({ message: `Missing field: ${key}` });
+      }
+    }
+
+    // Update partner's personal details subdocument
+    partner.personalDetails = {
+      fullName: req.body.fullName,
+      dob: req.body.dob,
+      gender: req.body.gender,
+      address: req.body.address,
+      phone: req.body.phone,
+      email: req.body.email,
+    };
+
+    await partner.save();
+
+    res.json({ message: "Personal details updated", partner });
+  } catch (err) {
+    console.error("updatePersonalDetails error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };

@@ -137,7 +137,7 @@ export default function MyOrders() {
           <h3 className="mt-5 text-lg font-medium text-gray-900">No orders yet</h3>
           <p className="mt-2 text-gray-500">You haven't placed any orders yet.</p>
           <button
-            onClick={() => (window.location.href = "/services")}
+            onClick={() => (window.location.href = "/products")}
             className="mt-6 px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
           >
             Browse Services
@@ -178,6 +178,23 @@ export default function MyOrders() {
                   </span>
                 </div>
               </div>
+
+              {/* Partner assignment message (NEW) */}
+              {order.partner && order.partner.name && (
+                <div className="mb-4 flex items-center gap-3 bg-green-50 border border-green-200 rounded-lg px-4 py-3">
+                  <svg className="h-6 w-6 text-green-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.121 17.804A7 7 0 0012 19a7 7 0 006.879-1.196M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <div>
+                    <span className="block text-green-700 font-semibold">
+                      Partner Assigned: {order.partner.name}
+                    </span>
+                    <span className="block text-green-600 text-sm mt-0.5">
+                      Partner is assigned. We will share the details before the time slot. Thank you!
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* Start/Complete Codes for the user */}
               <div className="flex flex-col sm:flex-row gap-4 mb-4">

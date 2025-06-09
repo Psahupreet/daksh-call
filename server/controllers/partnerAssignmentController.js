@@ -72,7 +72,7 @@ export const assignPartnerToOrder = async (req, res) => {
   }
 };
 
-// ✅ Auto-assign partner during order placement
+
 // ✅ Auto-assign partner based on service category match
 export const assignPartnerAutomatically = async (req, res) => {
   try {

@@ -82,6 +82,37 @@ export default function PartnerDocuments() {
                 {partner.name} <span className="text-gray-500">({partner.email})</span>
               </h3>
 
+              {/* PERSONAL DETAILS - Always Show */}
+              <div className="mb-4">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-4 text-xs sm:text-sm">
+                  <div>
+                    <span className="font-semibold">Full Name:</span>{" "}
+                    {partner.personalDetails?.fullName || "-"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">DOB:</span>{" "}
+                    {partner.personalDetails?.dob || "-"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Gender:</span>{" "}
+                    {partner.personalDetails?.gender || "-"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Address:</span>{" "}
+                    {partner.personalDetails?.address || "-"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Phone:</span>{" "}
+                    {partner.personalDetails?.phone || "-"}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Email:</span>{" "}
+                    {partner.personalDetails?.email || "-"}
+                  </div>
+                </div>
+              </div>
+
+              {/* DOCUMENTS */}
               <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 text-xs sm:text-sm text-gray-700 mb-3 sm:mb-4">
                 {partner.documents && Object.entries(partner.documents).map(([key, url]) => (
                   url && (

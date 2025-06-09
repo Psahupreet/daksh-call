@@ -6,7 +6,7 @@ import {
   loginPartner,
   getAllPartners,
   deletePartner,
-  getPartnerDashboardStats,forgotPassword, resetPassword,getMe
+  getPartnerDashboardStats,forgotPassword, resetPassword,getMe,updatePersonalDetails
   // uploadDocuments, // ✅ NEW controller
 } from "../controllers/partnerController.js";
 import { handlePartnerSupport } from "../controllers/partnerSupportController.js";
@@ -65,4 +65,6 @@ router.put('/reset-password-partner/:token', resetPassword);
 
 router.post("/support", protectPartner, handlePartnerSupport);
 
+// ✅ Fix: required: false in schema allows this to work!
+router.post("/partners/update-personal-details", authPartner, updatePersonalDetails);
 export default router;

@@ -30,8 +30,11 @@ import PartnerForgotPassword from './pages/PartnerForgotPassword';
 import PartnerResetPassword from './pages/PartnerResetPassword';
 import PartnerUpdateProfile from "./pages/PartnerUpdateProfile";
 import PartnerSupportPage from "./pages/PartnerSupportPage";
+import CustomerProfile from './pages/CustomerProfile';
+import Contact  from "./pages/Contact";
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
+import CartBar from "./components/CartBar";
 export default function App() {
   const location = useLocation();
 
@@ -45,6 +48,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/profile" element={<CustomerProfile />} />
           <Route path="/cart" element={<PrivateRoute><Cart /></PrivateRoute>} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/products" element={<ProductList />} />
@@ -77,6 +82,7 @@ export default function App() {
           <Route path="/partner-Support" element={<PartnerSupportPage />} />
         </Routes>
       </main>
+      <CartBar />
       <Footer />
     </div>
   );
