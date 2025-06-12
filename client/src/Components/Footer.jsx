@@ -22,7 +22,7 @@ export default function Footer() {
           <p className="text-gray-300 mb-6">
             Stay updated with our latest services and offers. Follow us on social media to get exclusive deals and home service tips!
           </p>
-          <div className="flex justify-center space-x-6">
+          <div className="flex justify-center space-x-6" style={{ marginBottom: "2rem" }} >
             <Link 
               to="#" 
               className="text-white bg-gradient-to-br from-blue-600 to-blue-800 p-3 rounded-full hover:from-blue-700 hover:to-blue-900 transition-all"

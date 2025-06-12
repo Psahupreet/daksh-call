@@ -35,6 +35,7 @@ import Contact  from "./pages/Contact";
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
 import CartBar from "./components/CartBar";
+import MobileStickyNav from './Components/MobileStickyNav';
 export default function App() {
   const location = useLocation();
 
@@ -82,7 +83,9 @@ export default function App() {
           <Route path="/partner-Support" element={<PartnerSupportPage />} />
         </Routes>
       </main>
+
       <CartBar />
+      <MobileStickyNav/>
       <Footer />
     </div>
   );

@@ -70,6 +70,7 @@ export const getAddresses = async (req, res) => {
 
 //  Save a new address for the current user, but don't add duplicates; always respond success
 
+
 export const saveAddress = async (req, res) => {
   const { houseNumber, street, landmark, addressType } = req.body;
   if (!houseNumber || !street || !addressType) {

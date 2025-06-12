@@ -143,29 +143,21 @@ export const partnerRespondToRequest = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { response } = req.body;
-    const partnerId = req.partner?._id?.toString(); // FIXED
-
-    // console.log("🟡 Partner Response Received:", { orderId, response, partnerId });
+    const partnerId = req.partner?._id?.toString();
 
     const order = await Order.findById(orderId)
       .populate("user")
       .populate("assignedPartner");
 
     if (!order) {
-      // console.log("❌ Order not found");
       return res.status(404).json({ message: "Order not found" });
     }
 
     if (!order.assignedPartner || order.assignedPartner._id.toString() !== partnerId) {
-      // console.log("⚠️ Unauthorized partner attempt", {
-      //   expected: order.assignedPartner?._id?.toString(),
-      //   actual: partnerId
-      // });
       return res.status(403).json({ message: "Unauthorized partner" });
     }
 
     if (new Date() > new Date(order.requestExpiresAt)) {
-      // console.log("⚠️ Request expired");
       return res.status(400).json({ message: "Request has expired" });
     }
 
@@ -173,20 +165,40 @@ export const partnerRespondToRequest = async (req, res) => {
       order.status = "Confirmed";
       order.requestStatus = "Accepted";
       await order.save();
-      // console.log("✅ Order accepted by partner");
-      return res.status(200).json({ message: "Request accepted successfully" });
+
+      // Fetch partner details (should already be populated as assignedPartner)
+      const partner = order.assignedPartner;
+
+      // Send email to user with partner details
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: order.user.email,
+        subject: "Your Service Provider Has Been Assigned",
+        html: `
+          <h2>Your service provider is assigned!</h2>
+          <p>Dear ${order.user.name},</p>
+          <p>Your service provider has been assigned. Here are the details:</p>
+          <ul>
+            <li><b>Name:</b> ${partner.name}</li>
+            <li><b>Phone:</b> ${partner.phone}</li>
+            <li><b>Email:</b> ${partner.email}</li>
+          </ul>
+          <p>Thank you for choosing us!</p>
+        `
+      });
+
+      return res.status(200).json({ message: "Request accepted successfully and user notified by email." });
     } else if (response === "Declined") {
       order.assignedPartner = null;
       order.requestStatus = "Pending";
-      order.status = "Declined"; 
+      order.status = "Declined";
       await order.save();
 
-      // console.log("🔁 Partner declined, reassigning...");
-      await assignNextAvailablePartner(order); // send to next partner
+      // Reassignment logic
+      await assignNextAvailablePartner(order);
       return res.status(200).json({ message: "Request declined and reassigned" });
     }
 
-    // console.log("⚠️ Invalid response format");
     return res.status(400).json({ message: "Invalid response" });
 
   } catch (err) {

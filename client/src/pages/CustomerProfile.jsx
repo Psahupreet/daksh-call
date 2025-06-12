@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { FiLogOut, FiHelpCircle, FiUser } from "react-icons/fi";
+import { useNavigate } from "react-router-dom"; // <-- Add this import
 
 const BASE_URL = "http://localhost:8080";
 
 export default function CustomerProfile() {
   const { isAuthenticated, logout } = useContext(AuthContext);
   const [user, setUser] = useState(null);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const navigate = useNavigate(); // <-- Add this line
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -23,10 +26,32 @@ export default function CustomerProfile() {
         .catch((err) => {
           console.error("Failed to load profile:", err);
         });
+    } else {
+      setShowLoginPopup(true);
     }
   }, [isAuthenticated]);
 
-  if (!user) return <div className="p-4">Loading profile...</div>;
+  // Show popup if not logged in or user data not loaded
+  if (!user) {
+    return (
+      <>
+        {showLoginPopup && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/60">
+            <div className="bg-white rounded-lg shadow-lg p-8 max-w-xs text-center">
+              <div className="text-rose-600 font-bold text-lg mb-4">Your access token is expired </div>
+              <div className="mb-6 text-gray-700">You must be logged in to see your profile information.</div>
+              <button
+                className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded font-semibold"
+                onClick={() => (window.location.href = "/login")}
+              >
+                Go to Login
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto mt-10 p-8 bg-white rounded-lg shadow-lg">
@@ -49,7 +74,10 @@ export default function CustomerProfile() {
           </div>
         </div>
 
-        <button className="text-blue-600 hover:text-blue-800 flex items-center">
+          <button
+          className="text-blue-600 hover:text-blue-800 flex items-center"
+          onClick={() => navigate("/help")}
+        >
           <FiHelpCircle className="mr-1" />
           Help
         </button>
@@ -91,17 +119,6 @@ export default function CustomerProfile() {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-end gap-4">
-        {/* Edit Profile button has been removed */}
-        <button
-          className="flex items-center px-5 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-          onClick={logout}
-        >
-          <FiLogOut className="mr-2" />
-          Logout
-        </button>
       </div>
     </div>
   );

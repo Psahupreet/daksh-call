@@ -35,9 +35,33 @@ export const getUserOrders = async (req, res) => {
   try {
     const userId = req.userId; // Extracted from token by authMiddleware
 
-    const orders = await Order.find({ user: userId }).populate("user", "name email");
+    // Populate user and assignedPartner (as User, not Partner!)
+    const orders = await Order.find({ user: userId })
+      .populate("user", "name email")
+      .populate({
+        path: "assignedPartner",
+        model: "User", // This assumes partners are stored in the User collection
+        select: "name email phone"
+      });
 
-    res.status(200).json(orders);
+    // For frontend compatibility: expose partner details as partner
+    const ordersWithPartner = orders.map(order => {
+      let orderObj = order.toObject();
+      if (orderObj.assignedPartner) {
+        orderObj.partner = {
+          name: orderObj.assignedPartner.name || "",
+          email: orderObj.assignedPartner.email || "",
+          phone: orderObj.assignedPartner.phone || ""
+        };
+      } else {
+        orderObj.partner = null;
+      }
+      // Optionally remove assignedPartner field if you don't want to expose it
+      // delete orderObj.assignedPartner;
+      return orderObj;
+    });
+
+    res.status(200).json(ordersWithPartner);
   } catch (error) {
     console.error("❌ Fetch Orders Error:", error);
     res.status(500).json({ message: "Failed to fetch orders" });

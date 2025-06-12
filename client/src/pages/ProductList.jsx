@@ -113,35 +113,39 @@ export default function ProductList() {
                 key={product._id}
                 className={`
                   bg-white 
-                  rounded-2xl 
-                  shadow-md 
+                  rounded-2xl sm:rounded-2xl
+                  shadow-lg sm:shadow-md
                   overflow-hidden 
-                  hover:shadow-lg sm:hover:shadow-xl 
-                  transition-shadow duration-300
+                  hover:shadow-xl sm:hover:shadow-xl 
+                  transition-all duration-300
                   flex flex-col
-                  border border-gray-100
+                  border-0 sm:border border-gray-100
                   relative
+                  transform hover:scale-[1.02] sm:hover:scale-100
                   ${!isAvailable ? "opacity-60 pointer-events-none" : ""}
                 `}
               >
                 {/* Overlay if not available */}
                 {!isAvailable && (
-                  <div className="absolute inset-0 z-20 bg-gray-200 bg-opacity-70 flex items-center justify-center">
-                    <span className="text-red-600 font-bold text-base sm:text-lg">
-                      Not Available
-                    </span>
+                  <div className="absolute inset-0 z-20 bg-gray-900 bg-opacity-50 flex items-center justify-center rounded-2xl">
+                    <div className="bg-white px-4 py-2 rounded-full">
+                      <span className="text-red-600 font-bold text-sm sm:text-lg">
+                        Not Available
+                      </span>
+                    </div>
                   </div>
                 )}
 
-                {/* Mobile-top badge */}
+                {/* Mobile rating badge - positioned better */}
                 {product.rating && (
-                  <div className="absolute top-3 left-3 sm:top-2 sm:right-2 sm:left-auto bg-white/90 px-2 py-1 rounded-full text-xs font-semibold flex items-center shadow-sm z-10">
-                    ⭐ {Number(product.rating).toFixed(1)}
+                  <div className="absolute top-3 right-3 sm:top-2 sm:right-2 bg-black/70 sm:bg-white/90 px-3 py-1.5 sm:px-2 sm:py-1 rounded-full text-xs font-semibold flex items-center shadow-lg sm:shadow-sm z-10">
+                    <span className="text-yellow-400 sm:text-gray-800 mr-1">⭐</span>
+                    <span className="text-white sm:text-gray-800">{Number(product.rating).toFixed(1)}</span>
                   </div>
                 )}
 
                 {/* Image */}
-                <div className="relative h-36 sm:h-48 overflow-hidden flex items-center justify-center">
+                <div className="relative h-44 sm:h-48 overflow-hidden">
                   <img
                     src={
                       Array.isArray(product.images) && product.images[0]
@@ -152,32 +156,58 @@ export default function ProductList() {
                     className="
                       w-full h-full object-cover 
                       transition-transform duration-500 
-                      rounded-xl sm:rounded-none
-                      hover:scale-105
+                      hover:scale-110 sm:hover:scale-105
                     "
                     onError={(e) => {
                       e.target.src =
                         "https://via.placeholder.com/400x300?text=Service+Image";
                     }}
                   />
+                  {/* Mobile gradient overlay for better text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent sm:hidden"></div>
                 </div>
 
                 {/* Content */}
-                <div className="p-3 sm:p-6 flex flex-col flex-1">
-                  <div className="flex justify-between items-start gap-2">
-                    <h2 className="text-base sm:text-xl font-bold text-gray-800 line-clamp-1">
+                <div className="p-4 sm:p-6 flex flex-col flex-1">
+                  {/* Title and Price Row */}
+                  <div className="flex justify-between items-start gap-3 mb-2">
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900 sm:text-gray-800 line-clamp-1 flex-1">
                       {product.name}
                     </h2>
-                    <p className="text-base sm:text-lg font-bold text-green-600 whitespace-nowrap">
-                      ₹{product.price}
-                    </p>
+                    <div className="flex flex-col items-end">
+                      <p className="text-xl sm:text-lg font-bold text-green-600 whitespace-nowrap">
+                        ₹{product.price}
+                      </p>
+                      <span className="text-xs text-gray-500 sm:hidden">starting from</span>
+                    </div>
                   </div>
 
-                  <p className="mt-1 sm:mt-2 text-xs sm:text-base text-gray-600 line-clamp-2">
+                  {/* Description */}
+                  <p className="text-sm sm:text-base text-gray-600 line-clamp-2 mb-4 sm:mb-2 leading-relaxed">
                     {product.description}
                   </p>
 
+                  {/* Mobile-specific features */}
+                  <div className="sm:hidden mb-4">
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span className="flex items-center">
+                        <svg className="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Quick Service
+                      </span>
+                      <span className="flex items-center">
+                        <svg className="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Verified
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="flex-grow"></div>
+                  
+                  {/* CTA Button */}
                   <Link
                     to={isAvailable ? `/product/${product._id}` : "#"}
                     tabIndex={isAvailable ? 0 : -1}
@@ -186,21 +216,35 @@ export default function ProductList() {
                       inline-block 
                       w-full 
                       text-center 
-                      ${isAvailable ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"} 
+                      ${isAvailable 
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 sm:bg-indigo-600 sm:hover:bg-indigo-700 active:scale-95 sm:active:scale-100" 
+                        : "bg-gray-400 hover:bg-gray-400 cursor-not-allowed"
+                      } 
                       text-white 
-                      px-4 py-2 sm:px-6 sm:py-3 
-                      rounded-lg 
-                      font-medium 
-                      transition-colors 
-                      text-sm sm:text-base
-                      shadow-sm
+                      px-4 py-3 sm:px-6 sm:py-3 
+                      rounded-xl sm:rounded-lg
+                      font-semibold sm:font-medium
+                      transition-all duration-200
+                      text-base sm:text-base
+                      shadow-lg sm:shadow-sm
+                      flex items-center justify-center
                     `}
                     aria-disabled={!isAvailable}
                     onClick={e => {
                       if (!isAvailable) e.preventDefault();
                     }}
                   >
-                    {isAvailable ? "View Details" : "Not Available"}
+                    {isAvailable ? (
+                      <>
+                        <span className="sm:hidden">Book Now</span>
+                        <span className="hidden sm:inline">View Details</span>
+                        <svg className="w-5 h-5 ml-2 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </>
+                    ) : (
+                      "Not Available"
+                    )}
                   </Link>
                 </div>
               </div>
