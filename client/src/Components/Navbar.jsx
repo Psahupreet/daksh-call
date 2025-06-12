@@ -286,7 +286,6 @@ export default function Navbar() {
                       {isLocationLoading ? "Detecting..." : location}
                     </div>
                   </div>
-
                 </div>
               </div>
             )}
@@ -321,7 +320,7 @@ export default function Navbar() {
             {/* Navigation Menu */}
             <div className="px-6 py-4">
               <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Menu</h3>
-              <div className="space-y-2">
+              <div className="space-y-2"  style={{ marginBottom: "70px" }}>
                 {isAuthenticated && (
                   <Link
                     to="/my-orders"
@@ -339,29 +338,32 @@ export default function Navbar() {
                     </div>
                   </Link>
                 )}
-                {/* <Link
-                  to="/about"
-                  className="flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all group"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-purple-100 text-purple-600 mr-4 group-hover:bg-purple-500 group-hover:text-white transition-all">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="font-medium">About Us</p>
-                    <p className="text-sm text-gray-500">Learn more about DAKSH</p>
-                  </div>
-                </Link> */}
+                {/* About button removed for mobile */}
+                {/* Logout button in place of About for mobile */}
+                {isAuthenticated && (
+                 <button
+  onClick={() => {
+    logout();
+    setIsMobileMenuOpen(false);
+  }}
+  className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 font-medium rounded-xl transition-colors border border-red-200 mb-[0px]"
+>
+  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+  </svg>
+  Logout
+</button>
+                )}
               </div>
             </div>
 
             {/* Auth Section */}
             <div className="px-6 py-6 border-t border-gray-100 bg-gray-50">
               {!isAuthenticated ? (
-                <div className="space-y-3">
-                  <Link
+<div
+  className="space-y-3"
+  style={{ marginBottom: "70px" }}
+>                  <Link
                     to="/login"
                     className="w-full flex items-center justify-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors shadow-sm"
                     onClick={() => setIsMobileMenuOpen(false)}
@@ -376,20 +378,7 @@ export default function Navbar() {
                     Create New Account
                   </Link>
                 </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    logout();
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-center px-6 py-3 text-red-600 hover:bg-red-50 font-medium rounded-xl transition-colors border border-red-200"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  Sign Out
-                </button>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
