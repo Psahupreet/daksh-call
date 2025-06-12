@@ -34,7 +34,7 @@ import CustomerProfile from './pages/CustomerProfile';
 import Contact  from "./pages/Contact";
 import Pricing from './pages/Pricing';
 import Blog from './pages/Blog';
-import CartBar from "./components/CartBar";
+import CartBar from "./Components/CartBar";
 import MobileStickyNav from './Components/MobileStickyNav';
 export default function App() {
   const location = useLocation();
