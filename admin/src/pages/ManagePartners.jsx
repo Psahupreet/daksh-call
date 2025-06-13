@@ -179,7 +179,7 @@ export default function ManagePartners() {
                           {partner.phone}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {partner.service}
+                          {partner.category}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
