@@ -330,7 +330,7 @@ export default function Home() {
           {/* Salon for Women */}
           <div className="px-4 py-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Salon for Women</h2>
+              <h2 className="text-xl font-bold text-gray-800">Electrician</h2>
               <Link to="/products" className="text-blue-600 text-sm font-medium">See all</Link>
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -360,7 +360,7 @@ export default function Home() {
           {/* Spa for Women */}
           <div className="px-4 py-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800">Spa for women</h2>
+              <h2 className="text-xl font-bold text-gray-800">Plumber</h2>
               <Link to="/products" className="text-blue-600 text-sm font-medium">See all</Link>
             </div>
             <div className="grid grid-cols-3 gap-3">
