@@ -1,5 +1,4 @@
 // models/partnerDocuments.js
-
 import mongoose from "mongoose";
 
 const partnerDocumentsSchema = new mongoose.Schema(
@@ -16,12 +15,10 @@ const partnerDocumentsSchema = new mongoose.Schema(
       degree: { type: String, default: null },
       policeVerification: { type: String, required: true },
     },
-     status: {  type: String, enum: ["pending", "verified", "declined"], default: "pending", //for docs verification  
-  },
+    status: { type: String, enum: ["pending", "verified", "declined"], default: "pending" }, //for docs verification  
   },
   { timestamps: true }
 );
 
-const PartnerDocuments = mongoose.model("PartnerDocuments", partnerDocumentsSchema);
-
-export default PartnerDocuments;
+const PartnerDocument = mongoose.model("PartnerDocument", partnerDocumentsSchema);
+export default PartnerDocument;

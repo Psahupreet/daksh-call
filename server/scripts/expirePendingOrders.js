@@ -18,20 +18,29 @@ const expireStaleOrders = async () => {
   });
 
   for (const order of expiredOrders) {
-    console.log(`[ExpireOrders] Expiring order: ${order._id}, Partner: ${order.assignedPartner}`);
-    order.rejectedPartners = order.rejectedPartners || [];
-    order.rejectedPartners.push(order.assignedPartner.toString());
-    order.assignedPartner = null;
-    order.requestStatus = "Pending";
-    order.requestExpiresAt = null;
-    await assignNextAvailablePartner(order);
-    await order.save();
+    try {
+      console.log(`[ExpireOrders] Expiring order: ${order._id}, Partner: ${order.assignedPartner}`);
+      order.rejectedPartners = order.rejectedPartners || [];
+      order.rejectedPartners.push(order.assignedPartner.toString());
+      order.assignedPartner = null;
+      order.requestStatus = "Pending";
+      order.requestExpiresAt = null;
+      // assignNextAvailablePartner should save the order as needed
+      await assignNextAvailablePartner(order);
+    } catch (err) {
+      console.error(`[ExpireOrders] Error processing order ${order._id}:`, err);
+    }
   }
 
-  mongoose.disconnect();
+  await mongoose.disconnect();
 };
 
-expireStaleOrders().then(() => {
-  console.log("[ExpireOrders] Done!");
-  process.exit(0);
-});
+expireStaleOrders()
+  .then(() => {
+    console.log("[ExpireOrders] Done!");
+    process.exit(0);
+  })
+  .catch((err) => {
+    console.error("[ExpireOrders] Fatal error:", err);
+    process.exit(1);
+  });

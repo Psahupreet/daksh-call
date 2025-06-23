@@ -59,12 +59,13 @@ const orderSchema = new mongoose.Schema({
   },
   requestStatus: {
     type: String,
-    enum: ["Pending", "Accepted", "Declined", "NoPartner"],
+    enum: ["Pending", "Accepted", "Declined", "NoPartner","No service provider is available"],
     default: "Pending",
   },
   requestExpiresAt: { type: Date },
+  
   rejectedPartners: {
-    type: [String], // or [mongoose.Schema.Types.ObjectId] if preferred
+    type: [mongoose.Schema.Types.ObjectId], // Use ObjectId for consistency
     default: []
   },
   startedAt: { type: Date, default: null }, // when partner starts the job

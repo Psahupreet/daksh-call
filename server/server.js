@@ -30,8 +30,22 @@ const PORT = process.env.PORT || 8080;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const allowedOrigins = ['http://82.29.165.206:4173', 'http://82.29.165.206:4174',"http://localhost:5173",
-  "http://localhost:5174"];
+const allowedOrigins = 
+['http://82.29.165.206:4173', 
+  'http://82.29.165.206:4174',
+  "http://localhost:5173",
+  "http://localhost:5174",
+  'https://daksh-client.onrender.com',
+'https://daksh-admin.onrender.com',
+  'https://daksh.smartbhopal.city',
+  'https://admin8359dakshkarigar.smartbhopal.city',
+  'http://daksh.smartbhopal.city',
+  'http://admin8359dakshkarigar.smartbhopal.city',
+  'http://115.124.123.223:4173', 
+  'http://10.48.217.130:4173', 
+  'http://110.48.217.130:4174', 
+  'http://115.124.123.223:4174',
+];
 
 app.use(
   cors({

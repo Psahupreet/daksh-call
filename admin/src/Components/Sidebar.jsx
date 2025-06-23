@@ -1,21 +1,33 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { FaBars, FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaBars, FaTimes, FaChevronLeft, FaChevronRight, FaSignOutAlt } from "react-icons/fa";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const isActive = (path) => location.pathname === path;
-
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+  
+  const handleLogout = () => {
+    localStorage.removeItem("isAdmin");
+    navigate("/admin-login");
   };
 
   const toggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  // Utility for NavLink (used below)
+  const navLinkClass = ({ isActive }) =>
+    `flex items-center px-4 py-3 rounded-lg transition-colors ${
+      isActive
+        ? "bg-blue-600 text-white"
+        : "hover:bg-gray-700 text-gray-300"
+    }`;
 
   return (
     <>
@@ -44,92 +56,70 @@ export default function Sidebar() {
         </button>
 
         {/* Logo/Title */}
-        <h2 className={`text-xl font-bold mb-8 mt-4 px-4 whitespace-nowrap overflow-hidden ${
-          isCollapsed ? "text-center text-sm" : ""
-        }`}>
+        <h2
+          className={`text-xl font-bold mb-8 mt-4 px-4 whitespace-nowrap overflow-hidden ${
+            isCollapsed ? "text-center text-sm" : ""
+          }`}
+        >
           {isCollapsed ? "Admin" : "Admin Dashboard"}
         </h2>
 
         {/* Navigation Links */}
         <nav className="flex flex-col gap-1 flex-1">
-          <Link
-            to="/dashboard"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/dashboard') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          <NavLink to="/dashboard" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>📊</span>
             {!isCollapsed && <span className="ml-3">Dashboard</span>}
-          </Link>
-          <Link
-            to="/products"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/products') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/products" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>🛍️</span>
             {!isCollapsed && <span className="ml-3">Manage Products</span>}
-          </Link>
-          <Link
-            to="/orders"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/orders') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/orders" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>📦</span>
             {!isCollapsed && <span className="ml-3">Manage Orders</span>}
-          </Link>
-          <Link
-            to="/providers"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/providers') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/providers" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>🤝</span>
             {!isCollapsed && <span className="ml-3">Manage Partners</span>}
-          </Link>
-          <Link
-            to="/users"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/users') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/users" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>👥</span>
             {!isCollapsed && <span className="ml-3">Manage Users</span>}
-          </Link>
-          <Link
-            to="/add-service"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/add-service') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/add-service" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>➕</span>
             {!isCollapsed && <span className="ml-3">Add New Service</span>}
-          </Link>
-          <Link
-            to="/admin/register-partners"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/admin/register-partners') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/admin/register-partners" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>✅</span>
             {!isCollapsed && <span className="ml-3">Verify Partners</span>}
-          </Link>
-          <Link
-            to="/admin/partner-documents"
-            className={`flex items-center px-4 py-3 rounded-lg transition-colors ${
-              isActive('/admin/partner-documents') ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-300'
-            }`}
-          >
+          </NavLink>
+          <NavLink to="/admin/partner-documents" className={navLinkClass}>
             <span className={isCollapsed ? "mx-auto" : ""}>📄</span>
             {!isCollapsed && <span className="ml-3">Partner Documents</span>}
-          </Link>
+          </NavLink>
+          <NavLink to="/assign-order" className={navLinkClass}>
+            <span className={isCollapsed ? "mx-auto" : ""}>📝</span>
+            {!isCollapsed && <span className="ml-3">Assign Orders</span>}
+          </NavLink>
+          <button 
+  onClick={handleLogout} 
+  className={
+    "mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 " +
+    (isCollapsed ? "justify-center" : "")
+  }
+>
+  <FaSignOutAlt className="h-5 w-5" />
+  {!isCollapsed && <span>Logout</span>}
+</button>
         </nav>
 
         {/* Footer Area */}
-        <div className={`p-4 text-gray-400 text-sm ${
-          isCollapsed ? "text-center" : ""
-        }`}>
+        <div
+          className={`p-4 text-gray-400 text-sm ${
+            isCollapsed ? "text-center" : ""
+          }`}
+        >
           {!isCollapsed && "v1.0.0"}
         </div>
       </aside>

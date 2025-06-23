@@ -1,16 +1,12 @@
 import Order from "../models/Order.js";
-import User from "../models/User.js";
-import { log } from 'console';
-import Partner from "../models/Partner.js";
-import { assignNextAvailablePartner } from "../utils/assignPartner.js";
 import { assignPartnerAutomatically } from "../controllers/partnerAssignmentController.js";
-
 
 // Utility: Generate a random 4-digit code
 function generate4DigitCode() {
   return Math.floor(1000 + Math.random() * 9000).toString();
 }
-//create order
+
+// Create order (if you use this endpoint)
 export const createOrder = async (req, res) => {
   try {
     const { services, totalPrice } = req.body;
@@ -20,6 +16,8 @@ export const createOrder = async (req, res) => {
       services,
       totalPrice,
       status: "Confirmed",
+      requestStatus: "Pending",
+      createdAt: new Date(),
     });
 
     await newOrder.save();
@@ -30,45 +28,87 @@ export const createOrder = async (req, res) => {
   }
 };
 
-//get order
-export const getUserOrders = async (req, res) => {
+// Place order (with codes)
+export const placeOrder = async (req, res) => {
   try {
-    const userId = req.userId; // Extracted from token by authMiddleware
+    const { items, totalAmount, address } = req.body;
+    const userId = req.userId;
 
-    // Populate user and assignedPartner (as User, not Partner!)
-    const orders = await Order.find({ user: userId })
-      .populate("user", "name email")
-      .populate({
-        path: "assignedPartner",
-        model: "User", // This assumes partners are stored in the User collection
-        select: "name email phone"
-      });
+    if (!items || items.length === 0)
+      return res.status(400).json({ message: "No items to place order" });
 
-    // For frontend compatibility: expose partner details as partner
-    const ordersWithPartner = orders.map(order => {
-      let orderObj = order.toObject();
-      if (orderObj.assignedPartner) {
-        orderObj.partner = {
-          name: orderObj.assignedPartner.name || "",
-          email: orderObj.assignedPartner.email || "",
-          phone: orderObj.assignedPartner.phone || ""
-        };
-      } else {
-        orderObj.partner = null;
-      }
-      // Optionally remove assignedPartner field if you don't want to expose it
-      // delete orderObj.assignedPartner;
-      return orderObj;
+    // Generate 2 different codes
+    const happyCode = generate4DigitCode();
+    let completeCode = generate4DigitCode();
+    while (completeCode === happyCode) completeCode = generate4DigitCode();
+
+    const newOrder = new Order({
+      user: req.userId,
+      items,
+      totalAmount,
+      address: { ...address },
+      status: "Confirmed",
+      requestStatus: "Pending",
+      happyCode,
+      completeCode,
+      createdAt: new Date(),
     });
 
-    res.status(200).json(ordersWithPartner);
+        await newOrder.save();
+     
+
+
+    // Don't assign a partner here: assignment logic will trigger async
+    req.params.orderId = newOrder._id;
+    await assignPartnerAutomatically(req, {
+      status: () => ({ json: () => {} }),
+    });
+
+     res.status(201).json({ message: "Order placed; partner will respond shortly.", order: newOrder });
+  } catch (err) {
+    console.error("❌ placeOrder error:", err);
+    res.status(500).json({ message: "Failed to place order" });
+  }
+  
+};
+
+// Get orders for a user - including provider details and auto-setting NoPartner after 5 minutes
+export const getUserOrders = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    let orders = await Order.find({ user: userId })
+      .populate("assignedPartner", "name email phone");
+
+    // Check for pending orders that are older than 5 minutes and not assigned, and set to NoPartner
+    const now = Date.now();
+    await Promise.all(
+      orders.map(async (order) => {
+        if (
+          (!order.assignedPartner || !order.assignedPartner.name) &&
+          order.requestStatus === "pending"
+        ) {
+          const created = new Date(order.createdAt).getTime();
+          if (now - created > 5 * 60 * 1000) {
+            order.requestStatus = "NoPartner";
+            await order.save();
+          }
+        }
+      })
+    );
+
+    // refetch to ensure up-to-date status for frontend
+    orders = await Order.find({ user: userId })
+      .populate("assignedPartner", "name email phone");
+
+    res.status(200).json(orders);
   } catch (error) {
     console.error("❌ Fetch Orders Error:", error);
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 };
 
-//cancle order
+// Cancel order
 export const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
@@ -76,7 +116,7 @@ export const cancelOrder = async (req, res) => {
     const order = await Order.findById(id);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    if (order.user.toString() !== req.user.id)
+    if (order.user.toString() !== req.user.id && order.user.toString() !== req.userId)
       return res.status(403).json({ message: "Unauthorized" });
 
     order.status = "Cancelled";
@@ -88,67 +128,13 @@ export const cancelOrder = async (req, res) => {
   }
 };
 
-//placed order
-// Place order (with codes)
-export const placeOrder = async (req, res) => {
-  try {
-    const { items, totalAmount, address } = req.body;
-    const userId = req.userId;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: "No items to place order" });
-    }
-
-    // Generate 2 different codes
-    let happyCode = generate4DigitCode();
-    let completeCode = generate4DigitCode();
-    while (happyCode === completeCode) completeCode = generate4DigitCode();
-
-    const newOrder = new Order({
-      user: userId,
-      items,
-      totalAmount,
-      address: {
-        houseNumber: address.houseNumber,
-        street: address.street,
-        landmark: address.landmark,
-        addressType: address.addressType,
-        fullAddress: address.fullAddress,
-        timeSlot: address.timeSlot
-      },
-      status: "Confirmed",
-      createdAt: new Date(),
-      happyCode,
-      completeCode
-    });
-
-    const savedOrder = await newOrder.save();
-
-    // Call assignment function manually
-    req.params.orderId = savedOrder._id;
-    await assignPartnerAutomatically(req, {
-      status: () => ({ json: () => {} }),
-    });
-
-    res.status(201).json({
-      message: "Order placed and partner assignment triggered",
-      order: savedOrder
-    });
-  } catch (error) {
-    console.error("❌ Order Placement Error:", error);
-    res.status(500).json({
-      message: "Failed to place order",
-      error: error.message,
-    });
-  }
-};
-
-
-
-//getAllOrders admin 
+// Get all orders (admin)
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate("user", "name email");
+    const orders = await Order.find()
+      .populate("user", "name email")
+      .populate("assignedPartner", "name email")
+      .populate("rejectedPartners", "name email");
     res.status(200).json(orders);
   } catch (error) {
     console.error("Fetch all orders error:", error);
@@ -156,6 +142,7 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
+// Get orders for a partner
 export const getPartnerOrders = async (req, res) => {
   try {
     const partnerId = req.partnerId;
@@ -168,8 +155,8 @@ export const getPartnerOrders = async (req, res) => {
     // Only include user email/name if requestStatus is Accepted or status is processing/Completed
     orders.forEach(order => {
       if (
-        order.requestStatus !== "Accepted" && 
-        order.status !== "processing" && 
+        order.requestStatus !== "Accepted" &&
+        order.status !== "processing" &&
         order.status !== "Completed"
       ) {
         if (order.user) {
@@ -185,6 +172,7 @@ export const getPartnerOrders = async (req, res) => {
   }
 };
 
+// Change order time slot and reassign partner
 export const changeOrderTimeSlot = async (req, res) => {
   try {
     const { id } = req.params;
@@ -208,7 +196,9 @@ export const changeOrderTimeSlot = async (req, res) => {
     await order.save();
 
     // Call this function to re-assign a partner and send new request/notification
-    await assignNextAvailablePartner(order);
+    await assignPartnerAutomatically({ params: { orderId: order._id } }, {
+      status: () => ({ json: () => {} }),
+    });
 
     res.status(200).json({ message: "Time slot updated and reassignment started." });
   } catch (err) {
@@ -217,7 +207,7 @@ export const changeOrderTimeSlot = async (req, res) => {
   }
 };
 
-
+// Submit partner feedback for an order
 export const submitPartnerFeedback = async (req, res) => {
   try {
     const { orderId } = req.params;
