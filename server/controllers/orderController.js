@@ -143,6 +143,7 @@ export const getAllOrders = async (req, res) => {
 };
 
 // Get orders for a partner
+
 export const getPartnerOrders = async (req, res) => {
   try {
     const partnerId = req.partnerId;
@@ -164,7 +165,6 @@ export const getPartnerOrders = async (req, res) => {
         }
       }
     });
-
     res.json(orders);
   } catch (err) {
     console.error("❌ Failed to fetch partner orders:", err);

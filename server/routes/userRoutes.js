@@ -23,11 +23,7 @@ router.get('/addresses', protect, getAddresses);
 // Save a new address for the current user
 router.post('/addresses', protect, saveAddress);
 
-// //count in users in admin
-// router.get("/new-count", getNewUserCount);
 
-// // make it count o  in users in admin
-// router.put("/mark-seen", markUsersAsSeen);
 
 
 export default router;
