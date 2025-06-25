@@ -1,23 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export default function PartnerForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
+
+  const timerRef = useRef();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (cooldown > 0) {
+      timerRef.current = setTimeout(() => setCooldown(cooldown - 1), 1000);
+    }
+    return () => clearTimeout(timerRef.current);
+  }, [cooldown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
     try {
       const res = await axios.post(`${BASE_URL}/api/partners/forget-password-partner`, { email });
       setMessage(res.data.message);
       setError("");
+      setCooldown(300); // Start 5 min cooldown after successful send
     } catch (err) {
       setError(err.response?.data?.message || "Something went wrong");
+      // Handle cooldown from backend if provided
+      if (err.response?.status === 429) {
+        const remaining = err.response.data?.remaining;
+        setCooldown(remaining || 300);
+      }
     }
   };
 
@@ -35,12 +59,28 @@ export default function PartnerForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={cooldown > 0}
             />
           </div>
-          <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">
-            Send Reset Link
+          <button
+            type="submit"
+            className={`w-full py-2 rounded-lg font-semibold transition ${
+              cooldown > 0
+                ? "bg-indigo-300 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700 text-white"
+            }`}
+            disabled={cooldown > 0}
+          >
+            {cooldown > 0
+              ? `Send Reset Link (${formatTime(cooldown)})`
+              : "Send Reset Link"}
           </button>
         </form>
+        {cooldown > 0 && (
+          <p className="mt-4 text-sm text-gray-500 text-center">
+            Please wait <span className="font-semibold">{formatTime(cooldown)}</span> before requesting another reset link.
+          </p>
+        )}
         {message && <p className="mt-4 text-green-600 text-center">{message}</p>}
         {error && <p className="mt-4 text-red-600 text-center">{error}</p>}
       </div>

@@ -201,30 +201,36 @@ export const getPartnerDashboardStats = async (req, res) => {
 
 
 //forget Password
+// forgot password
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
     const partner = await Partner.findOne({ email });
     if (!partner) return res.status(404).json({ message: "Partner not found" });
-   
-      // Prevent resend within 5 minutes
-    if (partner.resetPasswordToken && partner.resetPasswordExpires > Date.now() - 5 * 60 * 1000) {
-      return res.status(429).json({ message: "Please wait 5 minutes before requesting another reset link" });
+
+    // Prevent resend within 5 minutes
+    const cooldownStart = partner.resetPasswordExpires - 60 * 60 * 1000; // 1 hour ago
+    const timeSinceLast = Date.now() - cooldownStart;
+    let remaining = 0;
+    if (partner.resetPasswordToken && timeSinceLast < 5 * 60 * 1000) {
+      remaining = Math.ceil((5 * 60 * 1000 - timeSinceLast) / 1000); // seconds left
+      return res.status(429).json({
+        message: "Please wait 5 minutes before requesting another reset link",
+        remaining
+      });
     }
 
-    
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
     partner.resetPasswordToken = hashedToken;
-    partner.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    partner.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
     await partner.save();
-    
-    const resetUrl = `${process.env.CLIENT_BASE_URL}/reset-password-partner/${resetToken}`; 
-    // const resetUrl = `http://82.29.165.206:8080/reset-password-partner/${resetToken}`;
+
+    const resetUrl = `${process.env.CLIENT_BASE_URL}/reset-password-partner/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
@@ -234,7 +240,7 @@ export const forgotPassword = async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: partner.email,
-      subject: 'Partner Password Reset',
+      subject: "Partner Password Reset",
       html: `<p>Click the link to reset your password:</p><a href="${resetUrl}">${resetUrl}</a>`
     });
 
@@ -244,14 +250,13 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// reset password
+// reset password (no change, just for completeness)
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
 
   try {
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
     const partner = await Partner.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() }
@@ -269,7 +274,6 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Error resetting password" });
   }
 };
-
 export const getMe = async (req, res) => {
   try {
     if (!req.partnerId) {
