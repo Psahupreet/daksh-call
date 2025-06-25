@@ -219,8 +219,9 @@ export const forgotPassword = async (req, res) => {
     partner.resetPasswordToken = hashedToken;
     partner.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await partner.save();
-
-    const resetUrl = `http://82.29.165.206:8080/reset-password-partner/${resetToken}`;
+    
+    const resetUrl = `${process.env.CLIENT_BASE_URL}/reset-password-partner/${resetToken}`; 
+    // const resetUrl = `http://82.29.165.206:8080/reset-password-partner/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
